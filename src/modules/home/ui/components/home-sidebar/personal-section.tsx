@@ -1,14 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  FlameIcon,
-  HistoryIcon,
-  HomeIcon,
-  ListVideoIcon,
-  PlaySquareIcon,
-  ThumbsUpIcon,
-} from "lucide-react";
+import { useAuth, useClerk } from "@clerk/nextjs";
+
+import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -41,6 +36,9 @@ const items = [
 ];
 
 export const PersonalSection = () => {
+  const clerk = useClerk();
+  const { isSignedIn } = useAuth();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>You</SidebarGroupLabel>
@@ -49,10 +47,15 @@ export const PersonalSection = () => {
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
-                tooltip={item.item}
+                tooltip={item.title}
                 asChild
                 isActive={false} // TODO: Change to look at current pathnane
-                onClick={() => {}} // TODO: Do something on click
+                onClick={(e) => {
+                  if (!isSignedIn && item.auth) {
+                    e.preventDefault();
+                    return clerk.openSignIn();
+                  }
+                }}
               >
                 <Link href={item.url} className="flex items-center gap-4">
                   <item.icon />
